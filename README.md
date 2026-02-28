@@ -2,6 +2,22 @@
 
 Pretty printer for [ubench](https://github.com/sheredom/ubench.h) benchmark output. Wraps benchmark executables and reformats raw ubench output into readable comparison tables with performance ratios and color-coded results.
 
+Sample output:
+```
+══ BENCHMARK COMPARISON ══
+
+### hash_suite
+| Method       | Mean         | CI         | Ratio    | Status   |
+|--------------|--------------|------------|----------|----------|
+| fnv1a (~)    | 45.1us       | +-1.2%     | 1.16x    | OK       |
+| djb2 (-)     | 52.5us       | +-1.0%     | 1.00x    | OK       |
+| murmur3 (+)  | 38.8us       | +-2.3%     | 1.35x    | OK       |
+
+════════════════════════════════════════════════
+ SUMMARY: 3 total | 3 OK
+════════════════════════════════════════════════
+```
+
 ## Installation
 
 Copy `ubench-pretty-print.sh` to your project or add to PATH:
