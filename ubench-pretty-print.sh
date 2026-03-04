@@ -267,6 +267,34 @@ for suite in "${suite_order[@]}"; do
         fi
     fi
 
+    # calculate ratios for sorting (ratio relative to slowest, higher = faster)
+    declare -A bench_ratio_val
+    for bench in "${bench_list[@]}"; do
+        key="${suite}.${bench}"
+        status="${bench_status[$key]:-unknown}"
+        if [[ "$status" == "ok" && -n "$slowest_ns" && -n "${bench_mean_ns[$key]:-}" ]]; then
+            bench_ratio_val[$bench]=$(awk "BEGIN {
+                v = ${bench_mean_ns[$key]} + 0
+                if (v > 0) printf \"%.6f\", $slowest_ns / v
+                else print \"0\"
+            }")
+        else
+            bench_ratio_val[$bench]="0"
+        fi
+    done
+
+    # sort bench_list by ratio descending (fastest first)
+    sorted_benches=()
+    while IFS= read -r bench; do
+        [[ -n "$bench" ]] && sorted_benches+=("$bench")
+    done < <(
+        for bench in "${bench_list[@]}"; do
+            printf "%s %s\n" "${bench_ratio_val[$bench]}" "$bench"
+        done | sort -t' ' -k1 -rn | cut -d' ' -f2-
+    )
+    bench_list=("${sorted_benches[@]}")
+    unset bench_ratio_val sorted_benches
+
     # second pass: print rows with normalized time, formatted CI, ratio, and row colors
     for bench in "${bench_list[@]}"; do
         key="${suite}.${bench}"
